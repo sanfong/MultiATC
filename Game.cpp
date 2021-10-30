@@ -82,17 +82,17 @@ void Game::update(float deltaTime)
 		{
 			countingSpawn -= spawnRate;
 			spawnPlane(nextCountToSpawn);
-			int randomRate = randint(0, 9) * 2; // 0  1  2  3  4  5  6  7  8  9
-			spawnRate = 8 + randomRate;         // 24 30 36 42 48 54 60 66 72 78
-			if (0 <= randomRate && randomRate <= 4) // 50 %
+			int randomRate = randint(0, 7) * 2; // 0  1  2  3  4  5  6  7
+			spawnRate = 8 + randomRate;         // 24 30 36 42 48 54 60 66
+			if (0 <= randomRate && randomRate <= 3)
 			{
 				nextCountToSpawn = 1;
 			}
-			else if (5 <= randomRate && randomRate <= 8) // 40 %
+			else if (4 <= randomRate && randomRate <= 6)
 			{
 				nextCountToSpawn = 2;
 			}
-			else // 10 %
+			else
 			{
 				nextCountToSpawn = 3;
 			}
