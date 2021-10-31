@@ -112,13 +112,16 @@ namespace Server
 				if (data.isCommand)
 				{
 					debug.print("Other : " + data.str);
-					string clientLog = Game::readCommand(data.str);
-					if (clientLog != "")
+					if (data.str.length() > 2)
 					{
-						ServerData data = Server::getInfo(clientLog);
-						data.isGameLog = true;
-						thread sendServerLog(Server::sendData, data);
-						sendServerLog.detach();
+						string clientLog = Game::readCommand(data.str);
+						if (clientLog != "")
+						{
+							ServerData data = Server::getInfo(clientLog);
+							data.isGameLog = true;
+							thread sendServerLog(Server::sendData, data);
+							sendServerLog.detach();
+						}
 					}
 				}
 				else
@@ -309,6 +312,10 @@ inline void processCommand(string cmd, bool isCmd)
 	{
 		if (connectSide == Side::Client)
 		{
+			if (isCmd && cmd.length() == 1)
+			{
+				Game::readCommand(cmd);
+			}
 			thread sendStr(Client::sendData, ClientData{ isCmd, cmd });
 			sendStr.detach();
 		}

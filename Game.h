@@ -17,6 +17,7 @@ namespace Game
 		bool isHolding;
 		int gas;
 		int holdingCount;
+		int boardColor;
 		XY beaconPos;
 		string instruction;
 		inline Plane()
@@ -31,6 +32,7 @@ namespace Game
 			destination = 0;
 			holdingCount = 0;
 			gas = 60;
+			boardColor = 10;
 			isJet = false;
 			isActive = false;
 			isHolding = false;

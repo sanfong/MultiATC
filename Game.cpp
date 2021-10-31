@@ -178,14 +178,22 @@ void Game::update(float deltaTime)
 XY beaconPosition[] = { XY(24, 7), XY(24, 17) };
 string Game::readCommand(string str)
 {
-	Plane* plane;
-	if (str.length() < 3) return "";
+	Plane* plane = nullptr;
+	if (str.empty()) return "";
 	for (auto& ch : str) { ch = toupper(ch); }
 	if ('A' <= str[0] && str[0] <= 'Z')
 		plane = (planes + str[0] - 'A');
 	else
 		return "";
-	
+	if (str.length() == 1)
+	{
+		for (size_t i = 0; i < 26; i++)
+		{
+			planes[i].boardColor = 10;
+		}
+		plane->boardColor = 15;
+	}
+
 	if (str.length() >= 6)
 	{
 		if (str[3] == 'A' && str[4] == 'B' && (str[5] == '0' || str[5] == '1'))
@@ -196,6 +204,7 @@ string Game::readCommand(string str)
 		}
 	}
 
+	if (str.length() < 3) return "";
 	if (str[1] == 'A')
 	{
 		if ('0' <= str[2] && str[2] <= '9')
@@ -222,40 +231,42 @@ void Game::show()
 	console.draw(convertedIGT(), XY(67, 0), 10);
 	console.draw(to_string(score), XY(67, 1), 10);
 	console.draw("Job : " + ((gameStart) ? string("Working") : string("Fired")), XY(61, 2), 3);
-	XY posName(61, 4);
-	XY posGate(69, 4);
-	string holdingA0 = "Holding at A0:\n";
-	string holdingA1 = "Holding at A1:\n";
+
+	XY writePos(61, 4);
+	vector<LogMsg> boardA[2];
 	for (size_t i = 0; i < 26; i++)
 	{
 		if (!planes[i].isActive || planes[i].isHolding)
 			continue;
 		planes[i].draw();
-
-		console.draw(planes[i].getDisplayName(), posName, 10);
-		posName.y++;
-		console.draw(planes[i].getDestination(), posGate, 10);
-		posGate.y++;
+		console.draw(planes[i].getDisplayName() + "      " + planes[i].getDestination(), writePos, planes[i].boardColor);
+		writePos.y++;
 	}
-	posName.y++;
 	for (size_t i = 0; i < 26; i++)
 	{
 		if (!(planes[i].isActive && planes[i].isHolding))
 			continue;
 
 		if (planes[i].position == destPoint[8])
-			holdingA0 += planes[i].getDisplayName() + "      " + planes[i].getDestination() + "\n";
+			boardA[0].push_back({ planes[i].getDisplayName() + "      " + planes[i].getDestination(), planes[i].boardColor });
 		else
-			holdingA1 += planes[i].getDisplayName() + "      " + planes[i].getDestination() + "\n";
+			boardA[1].push_back({ planes[i].getDisplayName() + "      " + planes[i].getDestination(), planes[i].boardColor });
 	}
-	string hold;
-	if (holdingA0 != "Holding at A0:\n" && holdingA1 != "Holding at A1:\n")
-		hold += holdingA0 + "\n" + holdingA1;
-	else if (holdingA0 != "Holding at A0:\n")
-		hold += holdingA0;
-	else if (holdingA1 != "Holding at A1:\n")
-		hold += holdingA1;
-	console.draw(hold, posName, 10);
+	writePos.y++;
+	for (size_t i = 0; i < 2; i++)
+	{
+		if (!boardA[i].empty())
+		{
+			console.draw("Holding at A" + to_string(i) + ":", writePos, 10);
+			writePos.y++;
+			for (auto& message : boardA[i])
+			{
+				console.draw(message.str, writePos, message.color);
+				writePos.y++;
+			}
+			writePos.y++;
+		}
+	}
 }
 
 void Game::endGame(string endMsg)

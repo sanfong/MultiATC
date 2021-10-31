@@ -2,13 +2,13 @@
 #include "AllHeader.h"
 #include <mutex>
 
+struct LogMsg
+{
+	string str;
+	int color;
+};
 class ConsoleLog
 {
-	struct LogMsg
-	{
-		string str;
-		int color;
-	};
 private:
 	XY position;
 	int height;
